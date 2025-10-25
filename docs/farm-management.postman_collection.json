@@ -1,0 +1,1316 @@
+{
+  "info": {
+    "name": "Farm Management API",
+    "description": "Postman collection covering the Farm Management backend endpoints for authentication, farm operations, livestock, inventory, finance, and task management.",
+    "_postman_id": "c3fe2b43-b2f1-4ad6-9e04-5c07c644ab61",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains bearer token\", function () {",
+                  "    pm.expect(responseJson).to.have.property(\"token\").that.is.a(\"string\").and.is.not.empty;",
+                  "    pm.expect(responseJson).to.have.property(\"tokenType\", \"Bearer\");",
+                  "});",
+                  "",
+                  "if (responseJson.token) {",
+                  "    pm.environment.set(\"authToken\", responseJson.token);",
+                  "}",
+                  "if (responseJson.expiresAt) {",
+                  "    pm.environment.set(\"authTokenExpiresAt\", responseJson.expiresAt);",
+                  "}",
+                  "if (responseJson.user && responseJson.user.id) {",
+                  "    pm.environment.set(\"authenticatedUserId\", responseJson.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@farm.local\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Google Login (Placeholder)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_token\": \"google-oauth-token-placeholder\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/google"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Farms",
+      "item": [
+        {
+          "name": "List Farms",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/farms"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Farm",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Green Valley Ranch\",\n  \"location\": \"Lam Dong, Vietnam\"\n}"
+            },
+            "url": "{{baseUrl}}/farms"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Farm By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/farms/{{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Farm",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Farm Name\",\n  \"location\": \"Updated Location\"\n}"
+            },
+            "url": "{{baseUrl}}/farms/{{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Farm",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/farms/{{farmId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/users"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"manager.sara\",\n  \"email\": \"sara@farm.local\",\n  \"password\": \"manager123\",\n  \"fullName\": \"Sara Nguyen\",\n  \"role\": \"MANAGER\",\n  \"farmIds\": [\"{{farmId}}\"],\n  \"active\": true\n}"
+            },
+            "url": "{{baseUrl}}/users"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/users/{{userId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Farm To User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"role\": \"MANAGER\"\n}"
+            },
+            "url": "{{baseUrl}}/users/{{userId}}/assign-farm"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle User Activation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/users/{{userId}}/activate"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Animals",
+      "item": [
+        {
+          "name": "List Animals",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/animals?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"tagId\": \"SOW-1001\",\n  \"species\": \"Pig\",\n  \"animalType\": \"BREEDING_FEMALE\",\n  \"batchId\": \"{{batchId}}\",\n  \"enclosureId\": \"{{enclosureId}}\",\n  \"feedPlanId\": \"{{feedPlanId}}\",\n  \"birthDate\": \"2022-03-15\",\n  \"status\": \"HEALTHY\",\n  \"healthRecords\": [\n    {\n      \"date\": \"2024-04-20\",\n      \"eventType\": \"Vaccination\",\n      \"notes\": \"Routine booster\",\n      \"recordedBy\": \"{{managerUserId}}\"\n    }\n  ],\n  \"growthRecords\": [\n    {\n      \"date\": \"2024-05-01\",\n      \"weight\": 190.5,\n      \"recordedBy\": \"{{managerUserId}}\"\n    }\n  ],\n  \"reproductionLogs\": []\n}"
+            },
+            "url": "{{baseUrl}}/animals"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Animal By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/animals/{{animalId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tagId\": \"SOW-1001\",\n  \"status\": \"HEALTHY\",\n  \"enclosureId\": \"{{enclosureId}}\",\n  \"feedPlanId\": \"{{feedPlanId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/animals/{{animalId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/animals/{{animalId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Animal Events",
+      "item": [
+        {
+          "name": "List Animal Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/animal-events?animalId={{animalId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Animal Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"animalId\": \"{{animalId}}\",\n  \"type\": \"ENTRY\",\n  \"date\": \"2024-05-01\",\n  \"notes\": \"Selected for breeding program\",\n  \"price\": 0,\n  \"recordedBy\": \"{{managerUserId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/animal-events"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Batches",
+      "item": [
+        {
+          "name": "List Batches",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/batches?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Batch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"batchCode\": \"FARM1-AN-2024-Q1\",\n  \"type\": \"ANIMAL\",\n  \"description\": \"Q1 breeding herd\",\n  \"source\": \"In-house breeding\",\n  \"entryDate\": \"2024-01-10\",\n  \"relatedItemIds\": [\"{{inventoryItemId}}\"]\n}"
+            },
+            "url": "{{baseUrl}}/batches"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Batch By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/batches/{{batchId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Enclosures",
+      "item": [
+        {
+          "name": "List Enclosures",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/enclosures?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Enclosure",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"name\": \"Breeding Pen A\",\n  \"type\": \"BREEDING_PEN\",\n  \"capacity\": 25,\n  \"currentOccupancy\": 14,\n  \"feedConsumptionLogs\": [],\n  \"medicineConsumptionLogs\": []\n}"
+            },
+            "url": "{{baseUrl}}/enclosures"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Enclosure",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nursery Barn\",\n  \"type\": \"YOUNG_PEN\",\n  \"capacity\": 18\n}"
+            },
+            "url": "{{baseUrl}}/enclosures/{{enclosureId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Enclosure",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/enclosures/{{enclosureId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Feed Plans",
+      "item": [
+        {
+          "name": "List Feed Plans",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/feed-plans?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Feed Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"name\": \"Breeding Sow Plan\",\n  \"stage\": \"GESTATION_LATE\",\n  \"description\": \"Daily ration for pregnant sows\",\n  \"feedDetails\": [\n    {\n      \"feedItemId\": \"{{inventoryItemId}}\",\n      \"quantityPerDay\": 3.5,\n      \"unit\": \"kg\"\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/feed-plans"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Feed Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Feed Plan\",\n  \"stage\": \"DEVELOPMENT\",\n  \"description\": \"Balanced diet for development stage\",\n  \"feedDetails\": [\n    {\n      \"feedItemId\": \"{{inventoryItemId}}\",\n      \"quantityPerDay\": 18,\n      \"unit\": \"kg\"\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/feed-plans/{{feedPlanId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Feed Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/feed-plans/{{feedPlanId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Inventory Items",
+      "item": [
+        {
+          "name": "List Inventory Items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/inventory-items?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Inventory Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"name\": \"Grower Feed Mix\",\n  \"category\": \"FEED\",\n  \"quantity\": 420,\n  \"unit\": \"kg\",\n  \"lowStockThreshold\": 100\n}"
+            },
+            "url": "{{baseUrl}}/inventory-items"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Inventory Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Grower Feed Mix\",\n  \"category\": \"FEED\",\n  \"quantity\": 400,\n  \"unit\": \"kg\",\n  \"lowStockThreshold\": 120\n}"
+            },
+            "url": "{{baseUrl}}/inventory-items/{{inventoryItemId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Inventory Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/inventory-items/{{inventoryItemId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Inventory Logs",
+      "item": [
+        {
+          "name": "List Inventory Logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/inventory-logs?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Inventory Log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"itemId\": \"{{inventoryItemId}}\",\n  \"batchCode\": \"FARM1-AN-2024-Q1\",\n  \"type\": \"OUT\",\n  \"quantity\": 62,\n  \"notes\": \"Two-day feed allocation\",\n  \"recordedBy\": \"{{managerUserId}}\",\n  \"date\": \"2024-05-20T08:00:00\",\n  \"usageTarget\": {\n    \"type\": \"ENCLOSURE\",\n    \"id\": \"{{enclosureId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/inventory-logs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Inventory Audits",
+      "item": [
+        {
+          "name": "List Inventory Audits",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/inventory-audits?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Inventory Audit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"date\": \"2024-05-10\",\n  \"conductedBy\": \"{{managerUserId}}\",\n  \"status\": \"COMPLETED\",\n  \"items\": [\n    {\n      \"itemId\": \"{{inventoryItemId}}\",\n      \"itemName\": \"Dairy Cow Feed\",\n      \"systemQuantity\": 600,\n      \"actualQuantity\": 590,\n      \"discrepancy\": -10,\n      \"notes\": \"Minor loss\"\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/inventory-audits"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Financial Transactions",
+      "item": [
+        {
+          "name": "List Financial Transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/financial-transactions?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Financial Transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"type\": \"EXPENSE\",\n  \"amount\": 1250.5,\n  \"description\": \"Bulk grower feed purchase\",\n  \"category\": \"Feed\",\n  \"relatedBatchId\": \"{{batchId}}\",\n  \"date\": \"2024-05-15\",\n  \"recordedBy\": \"{{managerUserId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/financial-transactions"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "List Tasks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/tasks?farmId={{farmId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmId\": \"{{farmId}}\",\n  \"title\": \"Schedule farrowing checks\",\n  \"description\": \"Monitor sows expected to farrow next month\",\n  \"assignedTo\": \"{{managerUserId}}\",\n  \"status\": \"IN_PROGRESS\",\n  \"dueDate\": \"2024-06-05\",\n  \"createdAt\": \"2024-05-20T08:00:00\",\n  \"createdBy\": \"{{adminUserId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/tasks"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Schedule farrowing checks\",\n  \"description\": \"Update notes and timing\",\n  \"status\": \"DONE\",\n  \"dueDate\": \"2024-05-25\",\n  \"assignedTo\": \"{{managerUserId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/tasks/{{taskId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{authToken}}"}
+            ],
+            "url": "{{baseUrl}}/tasks/{{taskId}}"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:8080", "type": "string"},
+    {"key": "authToken", "value": "", "type": "string"},
+    {"key": "authTokenExpiresAt", "value": "", "type": "string"},
+    {"key": "authenticatedUserId", "value": "", "type": "string"},
+    {"key": "adminUserId", "value": "replace-with-admin-id", "type": "string"},
+    {"key": "managerUserId", "value": "replace-with-manager-id", "type": "string"},
+    {"key": "farmId", "value": "replace-with-farm-id", "type": "string"},
+    {"key": "userId", "value": "replace-with-user-id", "type": "string"},
+    {"key": "animalId", "value": "replace-with-animal-id", "type": "string"},
+    {"key": "enclosureId", "value": "replace-with-enclosure-id", "type": "string"},
+    {"key": "feedPlanId", "value": "replace-with-feedplan-id", "type": "string"},
+    {"key": "batchId", "value": "replace-with-batch-id", "type": "string"},
+    {"key": "inventoryItemId", "value": "replace-with-inventory-item-id", "type": "string"},
+    {"key": "taskId", "value": "replace-with-task-id", "type": "string"}
+  ]
+}

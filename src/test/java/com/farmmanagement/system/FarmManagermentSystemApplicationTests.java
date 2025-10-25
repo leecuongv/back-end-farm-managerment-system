@@ -1,4 +1,4 @@
-package com.leecuongv.farm_managerment_system;
+package com.farmmanagement.system;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -8,7 +8,7 @@
 		<version>3.5.7</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.leecuongv</groupId>
+	<groupId>com.farmmanagement</groupId>
 	<artifactId>farm-managerment-system</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>farm-managerment-system</name>
@@ -110,7 +110,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>com.leecuongv.farm_managerment_system.FarmManagermentSystemApplication</mainClass>
+					<mainClass>com.farmmanagement.system.FarmManagementSystemApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
