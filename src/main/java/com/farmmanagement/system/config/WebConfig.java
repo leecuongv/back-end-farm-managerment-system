@@ -22,9 +22,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**") // Áp dụng cho tất cả các endpoint bắt đầu bằng /api/
-                .allowedOrigins("http://localhost:3000") // Đây là dòng quan trọng nhất!
+                // Allow the frontend running on localhost:3000 and common local variants
+                .allowedOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+                // Allow origin patterns for other local dev ports if needed (keeps credentials allowed)
+                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .exposedHeaders("Authorization", "Content-Disposition")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
