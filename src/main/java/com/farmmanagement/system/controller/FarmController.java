@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Tag(name = "Farms", description = "Farm management endpoints")
 @RestController
 @RequestMapping("/farms")

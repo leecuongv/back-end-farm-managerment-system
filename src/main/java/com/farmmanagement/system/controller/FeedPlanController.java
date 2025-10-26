@@ -4,12 +4,15 @@ import com.farmmanagement.system.model.FeedPlan;
 import com.farmmanagement.system.repository.FeedPlanRepository;
 import com.farmmanagement.system.security.SecurityUtils;
 import com.farmmanagement.system.service.AuditService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Feed Plans", description = "Feed plan management endpoints")
 @RestController
 @RequestMapping("/feed-plans")
 public class FeedPlanController {
@@ -20,11 +23,13 @@ public class FeedPlanController {
     @Autowired
     private AuditService auditService;
 
+    @Operation(summary = "List feed plans", description = "List feed plans for a farm")
     @GetMapping
     public List<FeedPlan> getFeedPlansByFarm(@RequestParam String farmId) {
         return feedPlanRepository.findByFarmId(farmId);
     }
 
+    @Operation(summary = "Create feed plan", description = "Create a new feed plan")
     @PostMapping
     public FeedPlan createFeedPlan(@RequestBody FeedPlan feedPlan) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -33,6 +38,7 @@ public class FeedPlanController {
         return newFeedPlan;
     }
 
+    @Operation(summary = "Update feed plan", description = "Update a feed plan")
     @PutMapping("/{id}")
     public ResponseEntity<FeedPlan> updateFeedPlan(@PathVariable String id, @RequestBody FeedPlan feedPlanDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -49,6 +55,7 @@ public class FeedPlanController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Delete feed plan", description = "Delete a feed plan by id")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFeedPlan(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

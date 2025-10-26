@@ -4,12 +4,15 @@ import com.farmmanagement.system.model.Task;
 import com.farmmanagement.system.repository.TaskRepository;
 import com.farmmanagement.system.security.SecurityUtils;
 import com.farmmanagement.system.service.AuditService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Tasks", description = "Task and todo endpoints")
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
@@ -20,11 +23,13 @@ public class TaskController {
     @Autowired
     private AuditService auditService;
 
+    @Operation(summary = "List tasks", description = "List tasks for a farm")
     @GetMapping
     public List<Task> getTasksByFarm(@RequestParam String farmId) {
         return taskRepository.findByFarmId(farmId);
     }
 
+    @Operation(summary = "Create task", description = "Create a new task")
     @PostMapping
     public Task createTask(@RequestBody Task task) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -33,6 +38,7 @@ public class TaskController {
         return newTask;
     }
 
+    @Operation(summary = "Update task", description = "Update an existing task")
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable String id, @RequestBody Task taskDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -50,6 +56,7 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Delete task", description = "Delete a task by id")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

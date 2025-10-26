@@ -4,12 +4,15 @@ import com.farmmanagement.system.model.Batch;
 import com.farmmanagement.system.repository.BatchRepository;
 import com.farmmanagement.system.security.SecurityUtils;
 import com.farmmanagement.system.service.AuditService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Batches", description = "Batch and lot management endpoints")
 @RestController
 @RequestMapping("/batches")
 public class BatchController {
@@ -20,11 +23,13 @@ public class BatchController {
     @Autowired
     private AuditService auditService;
 
+    @Operation(summary = "List batches", description = "List batches for a farm")
     @GetMapping
     public List<Batch> getBatchesByFarm(@RequestParam String farmId) {
         return batchRepository.findByFarmId(farmId);
     }
 
+    @Operation(summary = "Create batch", description = "Create a new batch/lot")
     @PostMapping
     public Batch createBatch(@RequestBody Batch batch) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -33,6 +38,7 @@ public class BatchController {
         return newBatch;
     }
 
+    @Operation(summary = "Get batch", description = "Get batch details by id")
     @GetMapping("/{id}")
     public ResponseEntity<Batch> getBatchById(@PathVariable String id) {
         return batchRepository.findById(id)
