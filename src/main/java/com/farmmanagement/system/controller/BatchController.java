@@ -23,10 +23,23 @@ public class BatchController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List batches", description = "List batches for a farm")
+    @Operation(summary = "List batches", description = "List batches for a farm with optional filters and sorting")
     @GetMapping
-    public List<Batch> getBatchesByFarm(@RequestParam String farmId) {
-        return batchRepository.findByFarmId(farmId);
+    public List<Batch> getBatchesByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false, defaultValue = "entryDate") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (type != null) {
+            return batchRepository.findByFarmIdAndType(farmId, type, sort);
+        } else {
+            return batchRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create batch", description = "Create a new batch/lot")

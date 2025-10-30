@@ -23,10 +23,23 @@ public class FeedPlanController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List feed plans", description = "List feed plans for a farm")
+    @Operation(summary = "List feed plans", description = "List feed plans for a farm with optional filters and sorting")
     @GetMapping
-    public List<FeedPlan> getFeedPlansByFarm(@RequestParam String farmId) {
-        return feedPlanRepository.findByFarmId(farmId);
+    public List<FeedPlan> getFeedPlansByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String stage,
+            @RequestParam(required = false, defaultValue = "name") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (stage != null) {
+            return feedPlanRepository.findByFarmIdAndStage(farmId, stage, sort);
+        } else {
+            return feedPlanRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create feed plan", description = "Create a new feed plan")

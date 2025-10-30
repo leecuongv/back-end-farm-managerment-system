@@ -28,11 +28,24 @@ public class SeasonController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List seasons", description = "List all seasons or filter by farmId")
+    @Operation(summary = "List seasons", description = "List all seasons or filter by farmId with optional filters and sorting")
     @GetMapping
-    public List<Season> getSeasons(@RequestParam(required = false) String farmId) {
-        if (farmId != null) return seasonRepository.findByFarmId(farmId);
-        return seasonRepository.findAll();
+    public List<Season> getSeasons(
+            @RequestParam(required = false) String farmId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false, defaultValue = "startDate") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (farmId != null && status != null) {
+            return seasonRepository.findByFarmIdAndStatus(farmId, status, sort);
+        } else if (farmId != null) {
+            return seasonRepository.findByFarmId(farmId, sort);
+        }
+        return seasonRepository.findAll(sort);
     }
 
     @Operation(summary = "Create season", description = "Create a new crop season")

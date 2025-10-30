@@ -27,10 +27,28 @@ public class AnimalEventController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List animal events", description = "List events for a specific animal")
+    @Operation(summary = "List animal events", description = "List events for a specific animal with optional filters and sorting")
     @GetMapping
-    public List<AnimalEvent> getEventsByAnimal(@RequestParam String animalId) {
-        return animalEventRepository.findByAnimalId(animalId);
+    public List<AnimalEvent> getEventsByAnimal(
+            @RequestParam(required = false) String animalId,
+            @RequestParam(required = false) String farmId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (farmId != null && type != null) {
+            return animalEventRepository.findByFarmIdAndType(farmId, type, sort);
+        } else if (farmId != null) {
+            return animalEventRepository.findByFarmId(farmId, sort);
+        } else if (animalId != null) {
+            return animalEventRepository.findByAnimalId(animalId, sort);
+        } else {
+            return animalEventRepository.findAll(sort);
+        }
     }
 
     @Operation(summary = "Create animal event", description = "Record an event for an animal (e.g., vaccination, illness)")

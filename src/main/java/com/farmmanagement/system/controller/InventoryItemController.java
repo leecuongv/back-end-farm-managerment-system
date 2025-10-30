@@ -28,7 +28,7 @@ public class InventoryItemController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List inventory items", description = "Retrieve inventory items for a given farm.")
+    @Operation(summary = "List inventory items", description = "Retrieve inventory items for a given farm with optional filters and sorting.")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -44,8 +44,21 @@ public class InventoryItemController {
         )
     })
     @GetMapping
-    public List<InventoryItem> getItemsByFarm(@RequestParam String farmId) {
-        return inventoryItemRepository.findByFarmId(farmId);
+    public List<InventoryItem> getItemsByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false, defaultValue = "name") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (category != null) {
+            return inventoryItemRepository.findByFarmIdAndCategory(farmId, category, sort);
+        } else {
+            return inventoryItemRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create inventory item", description = "Add a new inventory item to the catalog.")

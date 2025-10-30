@@ -22,10 +22,33 @@ public class FinancialTransactionController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List transactions", description = "List financial transactions for a farm")
+    @Operation(summary = "List transactions", description = "List financial transactions for a farm with optional filters and sorting")
     @GetMapping
-    public List<FinancialTransaction> getTransactionsByFarm(@RequestParam String farmId) {
-        return financialTransactionRepository.findByFarmId(farmId);
+    public List<FinancialTransaction> getTransactionsByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (type != null && startDate != null && endDate != null) {
+            java.time.LocalDateTime start = java.time.LocalDateTime.parse(startDate);
+            java.time.LocalDateTime end = java.time.LocalDateTime.parse(endDate);
+            return financialTransactionRepository.findByFarmIdAndTypeAndDateBetween(farmId, type, start, end, sort);
+        } else if (startDate != null && endDate != null) {
+            java.time.LocalDateTime start = java.time.LocalDateTime.parse(startDate);
+            java.time.LocalDateTime end = java.time.LocalDateTime.parse(endDate);
+            return financialTransactionRepository.findByFarmIdAndDateBetween(farmId, start, end, sort);
+        } else if (type != null) {
+            return financialTransactionRepository.findByFarmIdAndType(farmId, type, sort);
+        } else {
+            return financialTransactionRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create transaction", description = "Create a new financial transaction")

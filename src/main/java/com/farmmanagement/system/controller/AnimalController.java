@@ -28,7 +28,7 @@ public class AnimalController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List animals", description = "Retrieve animals for a given farm.")
+    @Operation(summary = "List animals", description = "Retrieve animals for a given farm with optional filters and sorting.")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -44,8 +44,26 @@ public class AnimalController {
         )
     })
     @GetMapping
-    public List<Animal> getAnimalsByFarm(@RequestParam String farmId) {
-        return animalRepository.findByFarmId(farmId);
+    public List<Animal> getAnimalsByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String species,
+            @RequestParam(required = false, defaultValue = "tagId") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (status != null && species != null) {
+            return animalRepository.findByFarmIdAndStatusAndSpecies(farmId, status, species, sort);
+        } else if (status != null) {
+            return animalRepository.findByFarmIdAndStatus(farmId, status, sort);
+        } else if (species != null) {
+            return animalRepository.findByFarmIdAndSpecies(farmId, species, sort);
+        } else {
+            return animalRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create animal", description = "Register a new animal record.")

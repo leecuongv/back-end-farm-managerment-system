@@ -24,13 +24,21 @@ public class PlotController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List plots", description = "List all plots or filter by farmId")
+    @Operation(summary = "List plots", description = "List all plots or filter by farmId with sorting")
     @GetMapping
-    public List<Plot> getPlots(@RequestParam(required = false) String farmId) {
+    public List<Plot> getPlots(
+            @RequestParam(required = false) String farmId,
+            @RequestParam(required = false, defaultValue = "name") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
         if (farmId != null) {
-            return plotRepository.findByFarmId(farmId);
+            return plotRepository.findByFarmId(farmId, sort);
         }
-        return plotRepository.findAll();
+        return plotRepository.findAll(sort);
     }
 
     @Operation(summary = "Create plot", description = "Create a new plot/field")

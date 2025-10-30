@@ -27,7 +27,7 @@ public class InventoryLogController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List inventory logs", description = "Retrieve inventory logs for a given farm.")
+    @Operation(summary = "List inventory logs", description = "Retrieve inventory logs for a given farm with optional filters and sorting.")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -43,8 +43,21 @@ public class InventoryLogController {
         )
     })
     @GetMapping
-    public List<InventoryLog> getLogsByFarm(@RequestParam String farmId) {
-        return inventoryLogRepository.findByFarmId(farmId);
+    public List<InventoryLog> getLogsByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (type != null) {
+            return inventoryLogRepository.findByFarmIdAndType(farmId, type, sort);
+        } else {
+            return inventoryLogRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create inventory log", description = "Record an inventory in/out transaction.")

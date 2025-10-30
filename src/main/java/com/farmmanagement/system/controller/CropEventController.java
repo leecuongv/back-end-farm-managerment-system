@@ -26,12 +26,26 @@ public class CropEventController {
     private AuditService auditService;
 
     @GetMapping
-    @Operation(summary = "List crop events", description = "List crop events; optional filter by farmId or plotId")
-    public List<CropEvent> listEvents(@Parameter(description = "Filter by farm id") @RequestParam(required = false) String farmId,
-                                      @Parameter(description = "Filter by plot id") @RequestParam(required = false) String plotId) {
-        if (plotId != null) return cropEventRepository.findByPlotId(plotId);
-        if (farmId != null) return cropEventRepository.findByFarmId(farmId);
-        return cropEventRepository.findAll();
+    @Operation(summary = "List crop events", description = "List crop events with optional filters and sorting")
+    public List<CropEvent> listEvents(
+            @Parameter(description = "Filter by farm id") @RequestParam(required = false) String farmId,
+            @Parameter(description = "Filter by plot id") @RequestParam(required = false) String plotId,
+            @Parameter(description = "Filter by event type") @RequestParam(required = false) String eventType,
+            @RequestParam(required = false, defaultValue = "date") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (plotId != null) {
+            return cropEventRepository.findByPlotId(plotId, sort);
+        } else if (farmId != null && eventType != null) {
+            return cropEventRepository.findByFarmIdAndEventType(farmId, eventType, sort);
+        } else if (farmId != null) {
+            return cropEventRepository.findByFarmId(farmId, sort);
+        }
+        return cropEventRepository.findAll(sort);
     }
 
     @Operation(summary = "Create crop event", description = "Record a new cultivation event (planting, irrigation, harvest, etc.)")

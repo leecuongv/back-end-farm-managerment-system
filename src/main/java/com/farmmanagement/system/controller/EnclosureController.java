@@ -28,7 +28,7 @@ public class EnclosureController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List enclosures", description = "Retrieve enclosures for a specified farm.")
+    @Operation(summary = "List enclosures", description = "Retrieve enclosures for a specified farm with optional filters and sorting.")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
@@ -44,8 +44,21 @@ public class EnclosureController {
         )
     })
     @GetMapping
-    public List<Enclosure> getEnclosuresByFarm(@RequestParam String farmId) {
-        return enclosureRepository.findByFarmId(farmId);
+    public List<Enclosure> getEnclosuresByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false, defaultValue = "name") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (type != null) {
+            return enclosureRepository.findByFarmIdAndType(farmId, type, sort);
+        } else {
+            return enclosureRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create enclosure", description = "Create a new enclosure entry.")

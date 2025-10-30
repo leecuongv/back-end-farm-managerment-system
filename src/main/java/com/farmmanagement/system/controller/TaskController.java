@@ -23,10 +23,23 @@ public class TaskController {
     @Autowired
     private AuditService auditService;
 
-    @Operation(summary = "List tasks", description = "List tasks for a farm")
+    @Operation(summary = "List tasks", description = "List tasks for a farm with optional filters and sorting")
     @GetMapping
-    public List<Task> getTasksByFarm(@RequestParam String farmId) {
-        return taskRepository.findByFarmId(farmId);
+    public List<Task> getTasksByFarm(
+            @RequestParam String farmId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false, defaultValue = "dueDate") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDirection) {
+        
+        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
+            ? org.springframework.data.domain.Sort.by(sortBy).descending()
+            : org.springframework.data.domain.Sort.by(sortBy).ascending();
+        
+        if (status != null) {
+            return taskRepository.findByFarmIdAndStatus(farmId, status, sort);
+        } else {
+            return taskRepository.findByFarmId(farmId, sort);
+        }
     }
 
     @Operation(summary = "Create task", description = "Create a new task")
