@@ -5,6 +5,7 @@ import com.farmmanagement.system.repository.UserRepository;
 import com.farmmanagement.system.security.JwtTokenService;
 import com.farmmanagement.system.security.JwtTokenService.TokenDetails;
 import com.farmmanagement.system.service.AuditService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -37,6 +38,9 @@ public class AuthController {
 
     @Autowired
     private JwtTokenService jwtTokenService;
+
+    @Autowired
+    private GoogleTokenVerifier googleTokenVerifier;
 
     // This is a simplified login. In a real app, you'd use Spring Security, password encoding, and JWT generation.
     @Operation(summary = "Login", description = "Authenticate a user with email and password.")
@@ -118,29 +122,46 @@ public class AuthController {
     })
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload) {
-    // String idToken = payload.get("id_token");
+        String idTokenString = payload.get("id_token");
 
-        // In a real app, you would:
-        // 1. Verify the id_token with Google's public keys.
-        // 2. Extract the user's email from the verified token.
-        // 3. Find the user in your database by that email.
-        
-        // Mock implementation: Assume token is valid and we get an email.
-        // String email = "user.from.google@example.com"; // This would be extracted from the token
-        // User user = userRepository.findByEmail(email).orElse(null);
-        
-        // if (user == null) {
-        //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not registered by admin.");
-        // }
+        try {
+            GoogleIdToken.Payload googlePayload = googleTokenVerifier.verify(idTokenString);
+            String email = googlePayload.getEmail();
+            User user = userRepository.findByEmail(email).orElse(null);
 
-        // if (!user.getIsActive()) {
-        //     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account not activated by administrator.");
-        // }
-        
-        // auditService.logEvent("USER_LOGIN_GOOGLE", user.getId(), "User logged in successfully with Google");
-        // // Return a JWT token
-        // return ResponseEntity.ok(Map.of("message", "Google login successful", "user", user));
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not registered by admin.");
+            }
 
-        return ResponseEntity.ok(Map.of("message", "Google login endpoint hit. Verification logic needed."));
+            if (!user.isActive()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account not activated by administrator.");
+            }
+
+            auditService.logEvent(user.getId(), "USER_LOGIN_GOOGLE", "User", user.getId(), "User logged in successfully with Google");
+            TokenDetails tokenDetails = jwtTokenService.generateToken(user);
+
+            Map<String, Object> userPayload = new LinkedHashMap<>();
+            userPayload.put("id", user.getId());
+            userPayload.put("username", user.getUsername());
+            userPayload.put("email", user.getEmail());
+            userPayload.put("fullName", user.getFullName());
+            userPayload.put("role", user.getRole());
+            userPayload.put("farmIds", user.getFarmIds() != null ? List.copyOf(user.getFarmIds()) : List.of());
+            userPayload.put("authProvider", user.getAuthProvider());
+            userPayload.put("isActive", user.isActive());
+            userPayload.put("createdAt", user.getCreatedAt());
+
+            Map<String, Object> responseBody = new LinkedHashMap<>();
+            responseBody.put("message", "Login successful");
+            responseBody.put("token", tokenDetails.token());
+            responseBody.put("tokenType", "Bearer");
+            responseBody.put("expiresAt", tokenDetails.expiresAt().toString());
+            responseBody.put("user", userPayload);
+
+            return ResponseEntity.ok(responseBody);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Google ID token.");
+        }
     }
 }
