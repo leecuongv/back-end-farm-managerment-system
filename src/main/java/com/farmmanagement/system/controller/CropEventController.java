@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,11 +34,11 @@ public class CropEventController {
             @Parameter(description = "Filter by event type") @RequestParam(required = false) String eventType,
             @RequestParam(required = false, defaultValue = "date") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
-        
-        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
-            ? org.springframework.data.domain.Sort.by(sortBy).descending()
-            : org.springframework.data.domain.Sort.by(sortBy).ascending();
-        
+
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
         if (plotId != null) {
             return cropEventRepository.findByPlotId(plotId, sort);
         } else if (farmId != null && eventType != null) {

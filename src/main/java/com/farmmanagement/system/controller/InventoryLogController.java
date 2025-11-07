@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Sort;
 import java.util.List;
 
 @Tag(name = "Inventory Logs", description = "Inventory movement endpoints")
@@ -48,11 +48,11 @@ public class InventoryLogController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false, defaultValue = "date") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
-        
-        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
-            ? org.springframework.data.domain.Sort.by(sortBy).descending()
-            : org.springframework.data.domain.Sort.by(sortBy).ascending();
-        
+
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
         if (type != null) {
             return inventoryLogRepository.findByFarmIdAndType(farmId, type, sort);
         } else {

@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Sort;
 import java.util.List;
 
 @Tag(name = "Batches", description = "Batch and lot management endpoints")
@@ -30,11 +30,11 @@ public class BatchController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false, defaultValue = "entryDate") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
-        
-        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
-            ? org.springframework.data.domain.Sort.by(sortBy).descending()
-            : org.springframework.data.domain.Sort.by(sortBy).ascending();
-        
+
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
         if (type != null) {
             return batchRepository.findByFarmIdAndType(farmId, type, sort);
         } else {

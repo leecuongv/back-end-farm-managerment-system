@@ -8,7 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Sort;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Financial Transactions", description = "Financial transaction endpoints")
@@ -31,18 +32,17 @@ public class FinancialTransactionController {
             @RequestParam(required = false) String endDate,
             @RequestParam(required = false, defaultValue = "date") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
-        
-        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
-            ? org.springframework.data.domain.Sort.by(sortBy).descending()
-            : org.springframework.data.domain.Sort.by(sortBy).ascending();
-        
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
         if (type != null && startDate != null && endDate != null) {
-            java.time.LocalDateTime start = java.time.LocalDateTime.parse(startDate);
-            java.time.LocalDateTime end = java.time.LocalDateTime.parse(endDate);
+            LocalDateTime start = LocalDateTime.parse(startDate);
+            LocalDateTime end = LocalDateTime.parse(endDate);
             return financialTransactionRepository.findByFarmIdAndTypeAndDateBetween(farmId, type, start, end, sort);
         } else if (startDate != null && endDate != null) {
-            java.time.LocalDateTime start = java.time.LocalDateTime.parse(startDate);
-            java.time.LocalDateTime end = java.time.LocalDateTime.parse(endDate);
+            LocalDateTime start = LocalDateTime.parse(startDate);
+            LocalDateTime end = LocalDateTime.parse(endDate);
             return financialTransactionRepository.findByFarmIdAndDateBetween(farmId, start, end, sort);
         } else if (type != null) {
             return financialTransactionRepository.findByFarmIdAndType(farmId, type, sort);

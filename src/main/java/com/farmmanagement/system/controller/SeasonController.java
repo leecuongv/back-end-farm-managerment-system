@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Sort;
 import java.util.List;
 
 @Tag(name = "Seasons", description = "Crop season management endpoints")
@@ -35,11 +35,11 @@ public class SeasonController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false, defaultValue = "startDate") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
-        
-        org.springframework.data.domain.Sort sort = sortDirection.equalsIgnoreCase("desc") 
-            ? org.springframework.data.domain.Sort.by(sortBy).descending()
-            : org.springframework.data.domain.Sort.by(sortBy).ascending();
-        
+
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
         if (farmId != null && status != null) {
             return seasonRepository.findByFarmIdAndStatus(farmId, status, sort);
         } else if (farmId != null) {
