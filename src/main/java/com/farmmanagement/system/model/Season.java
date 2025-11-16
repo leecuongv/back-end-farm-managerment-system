@@ -43,6 +43,9 @@ public class Season {
     @Schema(description = "Optional notes or description")
     private String notes;
 
+    @Schema(description = "Status of the season", example = "ACTIVE")
+    private String status;
+
 
     public String getId() {
         return this.id;
@@ -145,6 +148,19 @@ public class Season {
 
     public Season notes(String notes) {
         setNotes(notes);
+        return this;
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Season status(String status) {
+        setStatus(status);
         return this;
     }
 
