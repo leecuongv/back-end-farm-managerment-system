@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Plot;
 import com.farmmanagement.system.repository.PlotRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -7,6 +8,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -25,6 +28,7 @@ public class PlotController {
     private AuditService auditService;
 
     @Operation(summary = "List plots", description = "List all plots or filter by farmId with sorting")
+    @Cacheable(value = RedisCacheConfig.CACHE_PLOTS, key = "#farmId + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<Plot> getPlots(
             @RequestParam(required = false) String farmId,
@@ -41,6 +45,7 @@ public class PlotController {
     }
 
     @Operation(summary = "Create plot", description = "Create a new plot/field")
+    @CacheEvict(value = RedisCacheConfig.CACHE_PLOTS, allEntries = true)
     @PostMapping
     public Plot createPlot(@RequestBody Plot plot) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -57,6 +62,7 @@ public class PlotController {
     }
 
     @Operation(summary = "Update plot", description = "Update plot fields")
+    @CacheEvict(value = RedisCacheConfig.CACHE_PLOTS, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<Plot> updatePlot(@PathVariable String id, @RequestBody Plot details) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -71,6 +77,7 @@ public class PlotController {
     }
 
     @Operation(summary = "Delete plot", description = "Delete a plot by id")
+    @CacheEvict(value = RedisCacheConfig.CACHE_PLOTS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePlot(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

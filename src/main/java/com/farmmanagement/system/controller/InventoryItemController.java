@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.InventoryItem;
 import com.farmmanagement.system.repository.InventoryItemRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -43,6 +46,7 @@ public class InventoryItemController {
             )
         )
     })
+    @Cacheable(value = RedisCacheConfig.CACHE_INVENTORY_ITEMS, key = "#farmId + ':' + #category + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<InventoryItem> getItemsByFarm(
             @RequestParam String farmId,
@@ -76,6 +80,7 @@ public class InventoryItemController {
             )
         )
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_INVENTORY_ITEMS, allEntries = true)
     @PostMapping
     public InventoryItem createInventoryItem(@RequestBody InventoryItem item) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -100,6 +105,7 @@ public class InventoryItemController {
         ),
         @ApiResponse(responseCode = "404", description = "Item not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_INVENTORY_ITEMS, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<InventoryItem> updateInventoryItem(@PathVariable String id, @RequestBody InventoryItem itemDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -126,6 +132,7 @@ public class InventoryItemController {
         ),
         @ApiResponse(responseCode = "404", description = "Item not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_INVENTORY_ITEMS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteInventoryItem(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

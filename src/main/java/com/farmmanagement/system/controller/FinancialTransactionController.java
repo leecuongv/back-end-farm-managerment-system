@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.FinancialTransaction;
 import com.farmmanagement.system.repository.FinancialTransactionRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -7,6 +8,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
@@ -24,6 +27,7 @@ public class FinancialTransactionController {
     private AuditService auditService;
 
     @Operation(summary = "List transactions", description = "List financial transactions for a farm with optional filters and sorting")
+    @Cacheable(value = RedisCacheConfig.CACHE_FINANCIAL_TRANSACTIONS, key = "#farmId + ':' + #type + ':' + #startDate + ':' + #endDate + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<FinancialTransaction> getTransactionsByFarm(
             @RequestParam String farmId,
@@ -52,6 +56,7 @@ public class FinancialTransactionController {
     }
 
     @Operation(summary = "Create transaction", description = "Create a new financial transaction")
+    @CacheEvict(value = RedisCacheConfig.CACHE_FINANCIAL_TRANSACTIONS, allEntries = true)
     @PostMapping
     public FinancialTransaction createTransaction(@RequestBody FinancialTransaction transaction) {
         String userId = SecurityUtils.getRequiredUserId();

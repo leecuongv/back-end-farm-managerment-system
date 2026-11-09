@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.FeedPlan;
 import com.farmmanagement.system.repository.FeedPlanRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -7,6 +8,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -24,6 +27,7 @@ public class FeedPlanController {
     private AuditService auditService;
 
     @Operation(summary = "List feed plans", description = "List feed plans for a farm with optional filters and sorting")
+    @Cacheable(value = RedisCacheConfig.CACHE_FEED_PLANS, key = "#farmId + ':' + #stage + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<FeedPlan> getFeedPlansByFarm(
             @RequestParam String farmId,
@@ -43,6 +47,7 @@ public class FeedPlanController {
     }
 
     @Operation(summary = "Create feed plan", description = "Create a new feed plan")
+    @CacheEvict(value = RedisCacheConfig.CACHE_FEED_PLANS, allEntries = true)
     @PostMapping
     public FeedPlan createFeedPlan(@RequestBody FeedPlan feedPlan) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -52,6 +57,7 @@ public class FeedPlanController {
     }
 
     @Operation(summary = "Update feed plan", description = "Update a feed plan")
+    @CacheEvict(value = RedisCacheConfig.CACHE_FEED_PLANS, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<FeedPlan> updateFeedPlan(@PathVariable String id, @RequestBody FeedPlan feedPlanDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -69,6 +75,7 @@ public class FeedPlanController {
     }
 
     @Operation(summary = "Delete feed plan", description = "Delete a feed plan by id")
+    @CacheEvict(value = RedisCacheConfig.CACHE_FEED_PLANS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFeedPlan(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Animal;
 import com.farmmanagement.system.repository.AnimalRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -44,6 +47,7 @@ public class AnimalController {
             )
         )
     })
+    @Cacheable(value = RedisCacheConfig.CACHE_ANIMALS, key = "#farmId + ':' + #status + ':' + #species + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<Animal> getAnimalsByFarm(
             @RequestParam String farmId,
@@ -82,6 +86,7 @@ public class AnimalController {
             )
         )
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_ANIMALS, allEntries = true)
     @PostMapping
     public Animal createAnimal(@RequestBody Animal animal) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -129,6 +134,7 @@ public class AnimalController {
         ),
         @ApiResponse(responseCode = "404", description = "Animal not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_ANIMALS, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<Animal> updateAnimal(@PathVariable String id, @RequestBody Animal animalDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -156,6 +162,7 @@ public class AnimalController {
         ),
         @ApiResponse(responseCode = "404", description = "Animal not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_ANIMALS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteAnimal(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Task;
 import com.farmmanagement.system.repository.TaskRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -7,6 +8,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -24,6 +27,7 @@ public class TaskController {
     private AuditService auditService;
 
     @Operation(summary = "List tasks", description = "List tasks for a farm with optional filters and sorting")
+    @Cacheable(value = RedisCacheConfig.CACHE_TASKS, key = "#farmId + ':' + #status + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<Task> getTasksByFarm(
             @RequestParam String farmId,
@@ -43,6 +47,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Create task", description = "Create a new task")
+    @CacheEvict(value = RedisCacheConfig.CACHE_TASKS, allEntries = true)
     @PostMapping
     public Task createTask(@RequestBody Task task) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -52,6 +57,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Update task", description = "Update an existing task")
+    @CacheEvict(value = RedisCacheConfig.CACHE_TASKS, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable String id, @RequestBody Task taskDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -70,6 +76,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Delete task", description = "Delete a task by id")
+    @CacheEvict(value = RedisCacheConfig.CACHE_TASKS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

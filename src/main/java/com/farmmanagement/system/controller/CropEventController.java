@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.CropEvent;
 import com.farmmanagement.system.repository.CropEventRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -26,6 +29,7 @@ public class CropEventController {
     @Autowired
     private AuditService auditService;
 
+    @Cacheable(value = RedisCacheConfig.CACHE_CROP_EVENTS, key = "#farmId + ':' + #plotId + ':' + #eventType + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     @Operation(summary = "List crop events", description = "List crop events with optional filters and sorting")
     public List<CropEvent> listEvents(
@@ -50,6 +54,7 @@ public class CropEventController {
     }
 
     @Operation(summary = "Create crop event", description = "Record a new cultivation event (planting, irrigation, harvest, etc.)")
+    @CacheEvict(value = RedisCacheConfig.CACHE_CROP_EVENTS, allEntries = true)
     @PostMapping
     public CropEvent createEvent(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Crop event payload") @RequestBody CropEvent event) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -67,6 +72,7 @@ public class CropEventController {
     }
 
     @Operation(summary = "Delete crop event", description = "Delete a crop event by id")
+    @CacheEvict(value = RedisCacheConfig.CACHE_CROP_EVENTS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@Parameter(description = "Crop event id") @PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

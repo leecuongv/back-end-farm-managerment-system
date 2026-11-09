@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.AnimalEvent;
 import com.farmmanagement.system.repository.AnimalEventRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -7,6 +8,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +31,7 @@ public class AnimalEventController {
     private AuditService auditService;
 
     @Operation(summary = "List animal events", description = "List events for a specific animal with optional filters and sorting")
+    @Cacheable(value = RedisCacheConfig.CACHE_ANIMAL_EVENTS, key = "#animalId + ':' + #farmId + ':' + #type + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<AnimalEvent> getEventsByAnimal(
             @RequestParam(required = false) String animalId,
@@ -52,6 +56,7 @@ public class AnimalEventController {
     }
 
     @Operation(summary = "Create animal event", description = "Record an event for an animal (e.g., vaccination, illness)")
+    @CacheEvict(value = RedisCacheConfig.CACHE_ANIMAL_EVENTS, allEntries = true)
     @PostMapping
     public AnimalEvent createAnimalEvent(@RequestBody AnimalEvent event) {
         String userId = SecurityUtils.getRequiredUserId();

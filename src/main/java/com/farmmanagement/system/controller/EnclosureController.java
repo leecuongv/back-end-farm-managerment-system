@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Enclosure;
 import com.farmmanagement.system.repository.EnclosureRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -43,6 +46,7 @@ public class EnclosureController {
             )
         )
     })
+    @Cacheable(value = RedisCacheConfig.CACHE_ENCLOSURES, key = "#farmId + ':' + #type + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<Enclosure> getEnclosuresByFarm(
             @RequestParam String farmId,
@@ -75,6 +79,7 @@ public class EnclosureController {
             )
         )
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_ENCLOSURES, allEntries = true)
     @PostMapping
     public Enclosure createEnclosure(@RequestBody Enclosure enclosure) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -99,6 +104,7 @@ public class EnclosureController {
         ),
         @ApiResponse(responseCode = "404", description = "Enclosure not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_ENCLOSURES, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<Enclosure> updateEnclosure(@PathVariable String id, @RequestBody Enclosure enclosureDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -123,6 +129,7 @@ public class EnclosureController {
         ),
         @ApiResponse(responseCode = "404", description = "Enclosure not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_ENCLOSURES, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEnclosure(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Farm;
 import com.farmmanagement.system.repository.FarmRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +47,7 @@ public class FarmController {
             )
         )
     })
+    @Cacheable(value = RedisCacheConfig.CACHE_FARMS, key = "'all'")
     @GetMapping
     public List<Farm> getAllFarms() {
         return farmRepository.findAll();
@@ -64,6 +68,7 @@ public class FarmController {
             )
         )
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_FARMS, allEntries = true)
     @PostMapping
     public Farm createFarm(@RequestBody Farm farm) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -111,6 +116,7 @@ public class FarmController {
         ),
         @ApiResponse(responseCode = "404", description = "Farm not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_FARMS, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<Farm> updateFarm(@PathVariable String id, @RequestBody Farm farmDetails) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -137,6 +143,7 @@ public class FarmController {
         ),
         @ApiResponse(responseCode = "404", description = "Farm not found")
     })
+    @CacheEvict(value = RedisCacheConfig.CACHE_FARMS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFarm(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();

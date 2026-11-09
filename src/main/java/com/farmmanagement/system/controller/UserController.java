@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Role;
 import com.farmmanagement.system.model.User;
 import com.farmmanagement.system.repository.UserRepository;
@@ -8,6 +9,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +28,14 @@ public class UserController {
     @Autowired
     private AuditService auditService;
 
+    @Cacheable(value = RedisCacheConfig.CACHE_USERS, key = "'all'")
     @GetMapping
     @Operation(summary = "List users", description = "Retrieve all users in the system.")
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    @CacheEvict(value = RedisCacheConfig.CACHE_USERS, allEntries = true)
     @PostMapping
     @Operation(summary = "Create user", description = "Create a new user (admin only). Passwords should be hashed in production.")
     public User createUser(@RequestBody User user) {
@@ -49,6 +54,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @CacheEvict(value = RedisCacheConfig.CACHE_USERS, allEntries = true)
     @PutMapping("/{id}/assign-farm")
     @Operation(summary = "Assign farm to user", description = "Assign a farm and role to an existing user.")
     public ResponseEntity<User> assignFarmToUser(@PathVariable String id, @RequestBody Map<String, String> payload) {
@@ -67,6 +73,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @CacheEvict(value = RedisCacheConfig.CACHE_USERS, allEntries = true)
     @PostMapping("/{id}/activate")
     @Operation(summary = "Activate / Deactivate user", description = "Enable or disable a user account.")
     public ResponseEntity<User> toggleUserActivation(@PathVariable String id, @RequestBody Map<String, Boolean> payload) {

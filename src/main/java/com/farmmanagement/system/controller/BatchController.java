@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Batch;
 import com.farmmanagement.system.repository.BatchRepository;
 import com.farmmanagement.system.security.SecurityUtils;
@@ -7,6 +8,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -24,6 +27,7 @@ public class BatchController {
     private AuditService auditService;
 
     @Operation(summary = "List batches", description = "List batches for a farm with optional filters and sorting")
+    @Cacheable(value = RedisCacheConfig.CACHE_BATCHES, key = "#farmId + ':' + #type + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<Batch> getBatchesByFarm(
             @RequestParam String farmId,
@@ -43,6 +47,7 @@ public class BatchController {
     }
 
     @Operation(summary = "Create batch", description = "Create a new batch/lot")
+    @CacheEvict(value = RedisCacheConfig.CACHE_BATCHES, allEntries = true)
     @PostMapping
     public Batch createBatch(@RequestBody Batch batch) {
         String userId = SecurityUtils.getRequiredUserId();

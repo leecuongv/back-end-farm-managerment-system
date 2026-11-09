@@ -1,5 +1,6 @@
 package com.farmmanagement.system.controller;
 
+import com.farmmanagement.system.config.RedisCacheConfig;
 import com.farmmanagement.system.model.Season;
 import com.farmmanagement.system.model.Batch;
 import com.farmmanagement.system.repository.SeasonRepository;
@@ -9,6 +10,8 @@ import com.farmmanagement.system.service.AuditService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
@@ -29,6 +32,7 @@ public class SeasonController {
     private AuditService auditService;
 
     @Operation(summary = "List seasons", description = "List all seasons or filter by farmId with optional filters and sorting")
+    @Cacheable(value = RedisCacheConfig.CACHE_SEASONS, key = "#farmId + ':' + #status + ':' + #sortBy + ':' + #sortDirection")
     @GetMapping
     public List<Season> getSeasons(
             @RequestParam(required = false) String farmId,
@@ -49,6 +53,7 @@ public class SeasonController {
     }
 
     @Operation(summary = "Create season", description = "Create a new crop season")
+    @CacheEvict(value = RedisCacheConfig.CACHE_SEASONS, allEntries = true)
     @PostMapping
     public Season createSeason(@RequestBody Season season) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -64,6 +69,7 @@ public class SeasonController {
     }
 
     @Operation(summary = "Update season", description = "Update season details")
+    @CacheEvict(value = RedisCacheConfig.CACHE_SEASONS, allEntries = true)
     @PutMapping("/{id}")
     public ResponseEntity<Season> updateSeason(@PathVariable String id, @RequestBody Season details) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -81,6 +87,7 @@ public class SeasonController {
     }
 
     @Operation(summary = "Delete season", description = "Delete a season by id")
+    @CacheEvict(value = RedisCacheConfig.CACHE_SEASONS, allEntries = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSeason(@PathVariable String id) {
         String userId = SecurityUtils.getRequiredUserId();
@@ -95,6 +102,7 @@ public class SeasonController {
      * Create a harvest batch linked to this season. Caller may provide batchCode and relatedItemIds.
      */
     @Operation(summary = "Create harvest batch", description = "Create a harvest batch linked to a season")
+    @CacheEvict(value = {RedisCacheConfig.CACHE_BATCHES, RedisCacheConfig.CACHE_SEASONS}, allEntries = true)
     @PostMapping("/{id}/harvests")
     public ResponseEntity<Batch> createHarvestBatch(@PathVariable String id, @RequestBody Batch batchPayload) {
         return seasonRepository.findById(id).map(season -> {
